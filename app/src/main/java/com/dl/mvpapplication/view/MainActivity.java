@@ -1,7 +1,12 @@
 package com.dl.mvpapplication.view;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -45,5 +50,37 @@ public class MainActivity extends AppCompatActivity implements ILoginView{
         if("1".equals(rsCode)){
             Toast.makeText(this,"登录成功",Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if(ev.getAction() == MotionEvent.ACTION_DOWN){
+            View v = getCurrentFocus();
+            if(isShouldHide(ev,v)){
+                hideSoftInput(v.getWindowToken());
+            }
+        }
+        return super.dispatchTouchEvent(ev);
+    }
+
+    private void hideSoftInput(IBinder windowToken) {
+        if(windowToken!=null){
+            InputMethodManager manager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            manager.hideSoftInputFromWindow(windowToken,InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+    }
+
+    private boolean isShouldHide(MotionEvent ev, View v) {
+        if(v!=null&&v instanceof EditText){
+            int[] loaction = {0,0};
+            v.getLocationInWindow(loaction);
+            int left = loaction[0],top = loaction[1],right=loaction[0]+v.getWidth(),bottom=loaction[1]+v.getHeight();
+            if(ev.getX()>left&&ev.getX()<right&&ev.getY()>top&&ev.getY()<bottom){
+                return false;
+            }else{
+                return true;
+            }
+        }
+        return false;
     }
 }
